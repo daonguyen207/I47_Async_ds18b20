@@ -9,7 +9,6 @@ void DS18B20_CALLBACK(float temp)
 void setup() 
 {
   Serial.begin(115200);
-  pinMode(3,OUTPUT);
   ds18b20_begin(DS18B20_CALLBACK);
 }
 void loop() 
