@@ -1,6 +1,13 @@
 #ifndef __I47_ASYNC_DS18B20__
 #define __I47_ASYNC_DS18B20__
 
+/*
+THư viện ds18b20 bất động bộ cho arduino
+Người viết: DaoNguyen IoT47
+Website: Iot47.com
+Email: daonguyen20798@gmail.com
+*/
+
 #define TIME       2
 #define OW_OUTPUT1 0
 #define OW_OUTPUT0 1
