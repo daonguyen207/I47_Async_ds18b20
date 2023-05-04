@@ -400,7 +400,7 @@ float ds18b20_read_and_wait_finish()
     uint32_t t = millis();
     while(ow_cpu != (-1)) //chờ đọc xong
     {
-      if( millis() - t > 100)return -1;
+      if( millis() - t > 100)return -127;
     }
     return getTemp();
 }
