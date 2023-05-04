@@ -1,2 +1,3 @@
 ds18b20_begin	KEYWORD1
 ds18b20_read	KEYWORD1
+ds18b20_read_and_wait_finish	KEYWORD1
