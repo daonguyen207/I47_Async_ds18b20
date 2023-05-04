@@ -416,5 +416,17 @@ void ds18b20_begin(ds18b20_callback_t ds18b20_callback)
   ow_cpu =-1;
   ds18b20_read_done = ds18b20_callback;
 }
+void ds18b20_begin()
+{
+  //khởi tạo timer2
+  TCCR2A = 0;// đặt toàn bộ thanh ghi TCCR2A thành 0 
+  TCCR2B = 0;// tương tự cho TCCR2B 
+  TCNT2 = 0;// khởi tạo giá trị bộ đếm thành 0 
+  TCCR2B |= (1 << CS21)|(1 << CS20);   //chia 32
+  TIMSK2 |= (1 << OCIE2A); 
+   
+  ow_cpu =-1;
+  ds18b20_read_done = 0;
+}
 
 #endif
