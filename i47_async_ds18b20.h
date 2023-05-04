@@ -329,7 +329,7 @@ void OW_OUT_H(){MACRO_PORT |= MACRO_SET;  MACRO_DDDR |= MACRO_SET;}
 void OW_OUT_L(){MACRO_PORT &= MACRO_RESET;MACRO_DDDR |= MACRO_SET;}
 void OW_IN()   {MACRO_PORT |= MACRO_SET;  MACRO_DDDR &= MACRO_RESET;};
 uint8_t OW_PIN_VALUE(){return MACRO_PIN&MACRO_SET;}
-
+float getTemp(){return (float)(((uint16_t)ow_byte_high*256+ow_byte_low)>>4) + (0.0625 * (float)(ow_byte_low&0x0F));}
 void OW_alarm(int us_chia_2)//2us 1 xung => us max 512 => us nên là bội số của 2
 {
   TCNT2 = 0;
@@ -373,19 +373,36 @@ ISR(TIMER2_COMPA_vect)
   }
   else if(ds18b20_protocol[ow_cpu] == OW_END)
   {
-    ds18b20_read_done((float)(((uint16_t)ow_byte_high*256+ow_byte_low)>>4) + (0.0625 * (float)(ow_byte_low&0x0F)));
+    ow_cpu = -1;
+    if(ds18b20_read_done!=0)ds18b20_read_done(getTemp());
   }
 }
-void ds18b20_read()
+char ds18b20_read()
 {
-  if(ow_cpu != 0)
+  if(ow_cpu == (-1))
   {
     ow_cpu = 0;
     ow_byte_low = 0;
     ow_byte_high= 0;
     OW_OUT_H();
     OW_alarm(100); //running
+    return 1; //start read
   }
+  return 0; //busy
+}
+float ds18b20_read_and_wait_finish()
+{
+    ow_cpu = 0;
+    ow_byte_low = 0;
+    ow_byte_high= 0;
+    OW_OUT_H();
+    OW_alarm(100); //running
+    uint32_t t = millis();
+    while(ow_cpu != (-1)) //chờ đọc xong
+    {
+      if( millis() - t > 100)return -1;
+    }
+    return getTemp();
 }
 void ds18b20_begin(ds18b20_callback_t ds18b20_callback)
 {
@@ -395,7 +412,8 @@ void ds18b20_begin(ds18b20_callback_t ds18b20_callback)
   TCNT2 = 0;// khởi tạo giá trị bộ đếm thành 0 
   TCCR2B |= (1 << CS21)|(1 << CS20);   //chia 32
   TIMSK2 |= (1 << OCIE2A); 
-
+   
+  ow_cpu =-1;
   ds18b20_read_done = ds18b20_callback;
 }
 
